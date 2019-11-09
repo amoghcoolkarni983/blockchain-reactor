@@ -16,6 +16,31 @@
     <properties>
         <project.root>${basedir}/..</project.root>
     </properties>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.amogh.blockchain</groupId>
+            <artifactId>blockchain-rest</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--com.sun.jersey dependencies-->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
 
 
 </project>
