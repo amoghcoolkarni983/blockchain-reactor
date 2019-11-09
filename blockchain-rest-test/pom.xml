@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>blockchain-parent</artifactId>
+        <groupId>com.amogh.blockchain</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <artifactId>blockchain-rest-test</artifactId>
+
+    <properties>
+        <!-- This project needs to be released to the internal repository -->
+        <project.root>${basedir}/..</project.root>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+    </properties>
+    <dependencies>
+    <dependency>
+        <groupId>com.amogh.blockchain</groupId>
+        <artifactId>blockchain</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.amogh.blockchain</groupId>
+        <artifactId>blockchain-rest</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.amogh.blockchain</groupId>
+        <artifactId>blockchain-war</artifactId>
+        <type>war</type>
+        <scope>runtime</scope>
+    </dependency>
+        <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- This configuration must appear above the maven-clover2-plugin configuration to ensure the license is
+                    copied prior to clover instrumentation. -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-pre-site-license</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <!-- This needs to occur before cargo-maven2-plugin starts the Tomcat container so we'll map this
+                            to the 'package' phase which occurs before 'pre-integration-test'. -->
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <includeArtifactIds>blockchain-war</includeArtifactIds>
+                            <!-- Strip the version so we don't have to change the cargo config as the version changes. -->
+                            <stripVersion>true</stripVersion>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>surefire-it</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- java.net.preferIPv4Stack helps avoid hbase flooding the logs with ipv6 messages -->
+                    <!--
+                        <argLine>-Xmx1024m -XX:MaxPermSize=512m
+                        -enableassertions
+                        -Djava.net.preferIPv4Stack=true -Xdebug
+                        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=12345x</argLine> -->
+                    <skip>true</skip>
+                    <includes>
+                        <include>**/*Story.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>surefire-it</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- java.net.preferIPv4Stack helps avoid hbase flooding the logs with ipv6 messages -->
+                    <!--
+                        <argLine>-Xmx1024m -XX:MaxPermSize=512m
+                        -enableassertions
+                        -Djava.net.preferIPv4Stack=true -Xdebug
+                        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=12345x</argLine> -->
+                    <skip>true</skip>
+                    <includes>
+                        <include>**/*Story.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- http://cargo.codehaus.org/Maven2+Plugin+Reference+Guide -->
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.4.14</version>
+                <configuration>
+                    <container>
+                        <containerId>tomcat8x</containerId>
+                        <type>installed</type>
+                        <timeout>180000</timeout>
+                        <zipUrlInstaller>
+                            <url>http://repo1.maven.org/maven2/org/apache/tomcat/tomcat/8.0.3/tomcat-8.0.3.zip
+                            </url>
+                            <downloadDir>${project.build.directory}/downloads</downloadDir>
+                            <extractDir>${project.build.directory}/extracts</extractDir>
+                        </zipUrlInstaller>
+                        <systemProperties>
+                            <java.io.tmpdir>target/tmp</java.io.tmpdir>
+                        </systemProperties>
+                        <output>${project.build.directory}/cargo-container.log</output>
+                        <log>${project.build.directory}/cargo.log</log>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.oracle</groupId>
+                                <artifactId>ojdbc6</artifactId>
+                            </dependency>
+                        </dependencies>
+                    </container>
+                    <deployables>
+                        <deployable>
+                            <groupId>com.amogh.blockchain</groupId>
+                            <artifactId>blockchain-war</artifactId>
+                            <type>war</type>
+                            <properties>
+                                <context>blockchain</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
+                    <configuration>
+                        <type>standalone</type>
+                        <home>${project.build.directory}/tomcat8x/container</home>
+                        <!-- See http://cargo.codehaus.org/Configuration+properties for possible properties. -->
+                        <properties>
+                            <cargo.tomcat.ajp.port>9009</cargo.tomcat.ajp.port>
+                            <cargo.servlet.port>9090</cargo.servlet.port>
+                            <cargo.logging>low</cargo.logging>
+                            <war>${project.build.directory}/blockchain-war.war</war>
+                            <!-- Enable to debug the server, see http://cargo.codehaus.org/Debugging for more information. -->
+                            <!--<cargo.jvmargs> -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8888-->
+                            <!-- -Xnoagent-Djava.compiler=NONE</cargo.jvmargs>-->
+                        </properties>
+                        <configfiles>
+                            <configfile>
+                                <file>${project.basedir}/src/test/resources/war-dependencies/context.xml</file>
+                                <todir>conf</todir>
+                                <tofile>context.xml</tofile>
+                            </configfile>
+                        </configfiles>
+                        <!-- Because Tomcat handles classpaths in a non-standard way, resources that need to go on a WAR's
+                            classpath need to either go in the shared/classes folder or have their location manually added
+                            to the catalina.properties file for the tomcat installation -->
+                        <files>
+                            <file>
+                                <file>${project.basedir}/src/test/resources/war-dependencies/service.keystore</file>
+                                <todir>shared/classes</todir>
+                            </file>
+                        </files>
+                    </configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-container</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-container</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>copy-jbehave-reports</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <outputDirectory>${project.reporting.outputDirectory}/jbehave</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.directory}/jbehave/view</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
