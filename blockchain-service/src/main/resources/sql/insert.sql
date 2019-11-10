@@ -1,0 +1,1 @@
+insert into blocks values(1, 'a', 'b');
