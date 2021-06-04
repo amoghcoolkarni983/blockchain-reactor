@@ -50,7 +50,7 @@
         <joda.time.version>2.3</joda.time.version>
         <junit.version>4.11</junit.version>
         <commons.lang3.version>3.4</commons.lang3.version>
-        <httpclient.version>4.3.6</httpclient.version>
+        <httpclient.version>4.5.13</httpclient.version>
         <httpcore.version>4.2.4</httpcore.version>
         <jackson.mapper.asl.version>1.9.13</jackson.mapper.asl.version>
 
